@@ -2,6 +2,7 @@ import os, sys, appdirs
 from pathlib import Path
 
 from strings import Strings
+import dialogs
 
 import gi
 gi.require_version("Gtk", "3.0")
@@ -10,7 +11,7 @@ from gi.repository import Gtk
 DEFAULT_SETTINGS = """\
 photodir={}
 tree_expand_all=0
-language=english"""
+language={}"""
 
 def getDirectory():
     dialog = Gtk.FileChooserDialog(
@@ -53,12 +54,16 @@ class Settings:
         filename = getSettingsFile()
 
         if not os.path.exists(filename):
+            lang = dialogs.select_language(None, ["english", "czech"])
+            if not lang:
+                sys.exit(1)
+
             photodir = getDirectory()
             if not photodir:
                 sys.exit(1)
             
             with open(filename, "w+") as f:
-                f.write(DEFAULT_SETTINGS.format(photodir))
+                f.write(DEFAULT_SETTINGS.format(photodir, lang))
         
         data = ""
         with open(filename, "r") as f:

@@ -45,5 +45,29 @@ def create_group(parent, strings):
         return [False, year, name]
     return [None, None, None]
 
-def select_language(parent):
-    pass
+def select_language(parent, languages):
+    dialog = Gtk.MessageDialog(parent,
+                               Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                               Gtk.MessageType.QUESTION,
+                               Gtk.ButtonsType.OK_CANCEL,
+                               "Select a language")
+    
+    # dialog.set_title("Select a language")
+
+    dialogBox = dialog.get_content_area()
+
+    langBox = Gtk.ComboBoxText()
+    langBox.set_size_request(200, 0)
+
+    for language in languages:
+        langBox.append_text(language)
+
+    dialogBox.pack_start(langBox, False, False, 0)
+
+    dialog.show_all()
+    response = dialog.run()
+    lang = langBox.get_active_text()
+    dialog.destroy()
+    if (response == Gtk.ResponseType.OK) and lang:
+        return lang
+    return None
