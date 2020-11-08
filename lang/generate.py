@@ -13,9 +13,8 @@ for fn in os.listdir(DIRNAME):
     with open(fn, "r") as f:
         data = f.read()
     
-    with open(f"{fn}.py", "w+") as f:
+    with open(f"{fn.split('.')[0]}.py", "w+") as f:
         f.write(f"""\
-LANG_STRING = '''\\
+STRINGS = '''\\
 {data}
-'''
-""")
+'''""")

@@ -2,10 +2,8 @@ import os
 
 class Strings:
     def __init__(self, stringfile):
-        self.stringfile = stringfile
-
-        with open(stringfile) as f:
-            data = f.read()
+        exec(f"from lang import {stringfile}")
+        data = eval(f"{stringfile}.STRINGS")
         
         self.data = {}
 

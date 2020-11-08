@@ -47,7 +47,7 @@ def getSettingsFile():
     return os.path.join(getSettingsDir(), "config.cfg")
 
 def getStringsFile(language):
-    return os.path.join(getDirname(), f"lang/{language}.cfg")
+    return f"{language}"
 
 class Settings:
     def __init__(self):

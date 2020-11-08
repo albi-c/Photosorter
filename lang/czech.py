@@ -1,4 +1,4 @@
-LANG_STRING = '''\
+STRINGS = '''\
 name=Photosorter
 
 button.prev_image=<
