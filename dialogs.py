@@ -44,3 +44,6 @@ def create_group(parent, strings):
             return [True, year, name]
         return [False, year, name]
     return [None, None, None]
+
+def select_language(parent):
+    pass
