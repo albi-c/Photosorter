@@ -1,0 +1,3 @@
+pygi
+exif
+Send2Trash
