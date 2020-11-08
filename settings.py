@@ -10,6 +10,7 @@ from gi.repository import Gtk
 
 DEFAULT_SETTINGS = """\
 photodir={}
+newdir=new
 tree_expand_all=0
 language={}"""
 

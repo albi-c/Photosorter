@@ -16,8 +16,8 @@ def listFiles(path):
     files = sorted(Path(path).rglob("*"))
     return [f for f in files if any([str(f).endswith(ext) for ext in "png jpg jpeg gif bmp ico tiff".split(" ")])]
 
-def listDirs(path, exclude=[]):
-    return sorted([x for x in os.listdir(path) if (x not in exclude) and os.path.isdir(os.path.join(path, x))])
+def listDirs(path, exclude=[], checkFunc=lambda fn: True):
+    return sorted([x for x in os.listdir(path) if (x not in exclude) and os.path.isdir(os.path.join(path, x)) and checkFunc(x)])
 
 def isYear(text):
     return re.match(r"^\d{4}$", text)
@@ -48,14 +48,15 @@ class Image:
         self.settings = settings
         self.strings = strings
         self.dirname = settings["photodir"]
-        self.newdir = os.path.join(self.dirname, "new")
+        self.newdir = os.path.join(self.dirname, self.settings["newdir"])
 
+        Path(self.newdir).mkdir(parents=True, exist_ok=True)
         self.imageArray = listFiles(self.newdir)
         self.imageIndex = 0
 
         self.updateImage()
 
-        years = listDirs(self.dirname, ["new"])
+        years = listDirs(self.dirname, ["new"], isYear)
         self.grouptree = {}
 
         for year in years:
@@ -119,7 +120,7 @@ class Image:
         if data[0] == None:
             return
         elif data[0] == False:
-            createGroup(self)
+            self.createGroup()
         elif data[0] == True:
             year = data[1]
             name = data[2]

@@ -1,7 +1,7 @@
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Keybinder", "3.0")
-from gi.repository import Gtk, GdkPixbuf, Keybinder
+from gi.repository import Gtk, GdkPixbuf, Keybinder, Gdk
 
 class GUI(Gtk.Window):
     def __init__(self, strings, tree_expand_all=False):
@@ -52,16 +52,38 @@ class GUI(Gtk.Window):
         self.progressbar = Gtk.ProgressBar()
         self.grid.attach(self.progressbar, 0, 3, 5, 1)
 
-        Keybinder.init()
-        Keybinder.bind("Left", self.run_callback, "prev_image")
-        Keybinder.bind("Right", self.run_callback, "next_image")
-        Keybinder.bind("Delete", self.run_callback, "del_image")
-        Keybinder.bind("Enter", self.run_callback, "sortl_image")
-        Keybinder.bind("<Ctrl>n", self.run_callback, "create_group")
-        Keybinder.bind("r", self.run_callback, "rotr_image")
-        Keybinder.bind("e", self.run_callback, "rotl_image")
+        # Keybinder.init()
+        # Keybinder.bind("Left", self.run_callback, "prev_image")
+        # Keybinder.bind("Right", self.run_callback, "next_image")
+        # Keybinder.bind("Delete", self.run_callback, "del_image")
+        # Keybinder.bind("Enter", self.run_callback, "sortl_image")
+        # Keybinder.bind("<Ctrl>n", self.run_callback, "create_group")
+        # Keybinder.bind("r", self.run_callback, "rotr_image")
+        # Keybinder.bind("e", self.run_callback, "rotl_image")
+
+        self.connect("key-press-event", self.key_press_event)
 
         self.progressbar_running = False
+    def key_press_event(self, widget, event):
+        keyval = event.keyval
+        keyval_name = Gdk.keyval_name(keyval)
+        state = event.state
+        
+        ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
+
+        keybinds = [
+            [0, "Left", "prev_image"],
+            [0, "Right", "next_image"],
+            [0, "Delete", "del_image"],
+            [0, "Return", "sortl_image"],
+            [1, "n", "create_group"],
+            [0, "r", "rotr_image"],
+            [0, "e", "rotl_image"]
+        ]
+
+        for kb in keybinds:
+            if bool(kb[0]) == ctrl and keyval_name == kb[1]:
+                self.run_callback(None, kb[2])
     def update(self):
         if self.progressbar_running:
             self.progressbar.pulse()
