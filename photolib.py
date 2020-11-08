@@ -9,6 +9,9 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import GLib
 
+def getDirname():
+    return os.path.dirname(os.path.abspath(__file__))
+
 def listFiles(path):
     files = sorted(Path(path).rglob("*"))
     return [f for f in files if any([str(f).endswith(ext) for ext in "png jpg jpeg gif bmp ico tiff".split(" ")])]
@@ -157,7 +160,7 @@ class Image:
             filename = str(self.imageArray[self.imageIndex])
             self.gui.set_image(filename)
         except IndexError:
-            pass
+            self.gui.set_image(os.path.join(getDirname(), "res", "placeholder.png"))
 
         self.updateStatusbar(filename)
     def updateStatusbar(self, filename=None):
