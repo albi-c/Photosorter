@@ -7,7 +7,7 @@ from dialogs import create_group
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import GLib
+from gi.repository import GLib, GdkPixbuf
 
 def getDirname():
     return os.path.dirname(os.path.abspath(__file__))
@@ -29,8 +29,12 @@ def rotateImage(filename, angle):
         img = exif.Image(f)
     if img.has_exif:
         date = img.datetime
+        orie = img.orientation
     else:
         date = None
+        orie = None
+    
+    print(orie)
     
     im = im.rotate(angle, expand=True)
 
@@ -38,7 +42,10 @@ def rotateImage(filename, angle):
 
     with open(filename, "rb") as f:
         img = exif.Image(f)
-    if date != None: img.set("datetime", date)
+    if date != None:
+        img.set("datetime", date)
+    if orie != None:
+        img.set("orientation", orie)
     with open(filename, "wb") as f:
         f.write(img.get_file())
 
@@ -159,7 +166,8 @@ class Image:
         filename = None
         try:
             filename = str(self.imageArray[self.imageIndex])
-            self.gui.set_image(filename)
+            self.gui.set_image(filename, self.getImageRotation(filename))
+            self.gui.set_title(f"{self.strings['name']} - {filename}")
         except IndexError:
             self.gui.set_image(os.path.join(getDirname(), "res", "placeholder.png"))
 
@@ -175,3 +183,19 @@ class Image:
                 sbtext += f"{date_string}        "
         sbtext += f"{self.imageIndex + 1}/{len(self.imageArray)}"
         self.gui.set_statusbar(sbtext)
+        self.gui.set_progress((self.imageIndex + 1) / len(self.imageArray) if len(self.imageArray) > 0 else 1)
+    def getImageRotation(self, filename):
+        with open(filename, "rb") as f:
+            img = exif.Image(f)
+        if img.has_exif:
+            if "orientation" in dir(img):
+                print(img.orientation)
+                orientation = img.orientation
+                if orientation == exif.Orientation.RIGHT_TOP:
+                    return GdkPixbuf.PixbufRotation.CLOCKWISE
+                elif orientation == exif.Orientation.LEFT_BOTTOM:
+                    return GdkPixbuf.PixbufRotation.COUNTERCLOCKWISE
+                elif orientation == exif.Orientation.BOTTOM_RIGHT:
+                    return GdkPixbuf.PixbufRotation.UPSIDEDOWN
+                return GdkPixbuf.PixbufRotation.NONE
+        return GdkPixbuf.PixbufRotation.NONE

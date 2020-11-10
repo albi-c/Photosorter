@@ -86,21 +86,8 @@ class GUI(Gtk.Window):
     def update(self):
         if self.progressbar_running:
             self.progressbar.pulse()
-    def set_progressbar_running(self, running):
-        self.progressbar_running = running
-        if running:
-            self.progressbar.pulse()
-        else:
-            self.progressbar.set_fraction(0.0)
-    def set_progressbar_text(self, text=None):
-        self.progressbar.set_text(text)
-        self.progressbar.set_show_text(bool(text))
-    def start_progressbar_task(self, text):
-        self.set_progressbar_running(True)
-        self.set_progressbar_text(text)
-    def stop_progressbar_task(self):
-        self.set_progressbar_running(False)
-        self.set_progressbar_text()
+    def set_progress(self, progress):
+        self.progressbar.set_fraction(progress)
     def set_sortl_button(self, state):
         self.buttonSort.set_sensitive(state)
     def row_activated(self, widget, row, col):
@@ -146,16 +133,18 @@ class GUI(Gtk.Window):
     def run_callback(self, widget, action, params=[]):
         if action in self.callbacks:
             self.callbacks[action](*params)
-    def set_image(self, filename):
+    def set_image(self, filename, rotation=GdkPixbuf.PixbufRotation.NONE):
         if not filename:
             return
         
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
             filename=filename,
-            width=800,
+            width=600,
             height=600,
             preserve_aspect_ratio=True
         )
+        pixbuf = pixbuf.rotate_simple(rotation)
+        
         self.image.set_from_pixbuf(pixbuf)
     def start(self, destroy_action=Gtk.main_quit):
         self.connect("destroy", destroy_action)
