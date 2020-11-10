@@ -1,7 +1,6 @@
 import gi
 gi.require_version("Gtk", "3.0")
-gi.require_version("Keybinder", "3.0")
-from gi.repository import Gtk, GdkPixbuf, Keybinder, Gdk
+from gi.repository import Gtk, GdkPixbuf, Gdk
 
 class GUI(Gtk.Window):
     def __init__(self, strings, tree_expand_all=False):
