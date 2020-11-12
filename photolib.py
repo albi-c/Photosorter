@@ -185,6 +185,14 @@ class Image:
         shutil.move(src, dst)
 
         self.updateFilters()
+    def getDateCreated(self, filename):
+        with open(filename, "rb") as f:
+            img = exif.Image(f)
+            if img.has_exif:
+                date = datetime.datetime.strptime(img.datetime, "%Y:%m:%d %H:%M:%S")
+                return date
+        date = datetime.datetime.utcfromtimestamp(os.path.getmtime(filename))
+        return date
     def updateImage(self):
         filename = None
         try:
@@ -198,12 +206,9 @@ class Image:
     def updateStatusbar(self, filename=None):
         sbtext = ""
         if filename:
-            with open(filename, "rb") as f:
-                img = exif.Image(f)
-            if img.has_exif:
-                date = datetime.datetime.strptime(img.datetime, "%Y:%m:%d %H:%M:%S")
-                date_string = date.strftime(self.strings["dateformat"])
-                sbtext += f"{date_string}        "
+            date = self.getDateCreated(filename)
+            date_string = date.strftime(self.strings["dateformat"])
+            sbtext += f"{date_string}        "
         sbtext += f"{self.imageIndex + 1}/{len(self.imageArray)}"
         self.gui.set_statusbar(sbtext)
         self.gui.set_progress((self.imageIndex + 1) / len(self.imageArray) if len(self.imageArray) > 0 else 1)
