@@ -10,6 +10,8 @@ button.next_image=>
 button.group_create=Vytvořit skupinu
 button.group_add   =Přidat do skupiny
 
+button.toggle.hide_sorted=Skrýt zatřízené
+
 groups=Skupiny
 
 groups.create_new=Vytvořit novou skupinu

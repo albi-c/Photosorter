@@ -38,11 +38,11 @@ class GUI(Gtk.Window):
 
         self.buttonGroup = Gtk.Button(label=self.strings["button.group_create"])
         self.buttonGroup.connect("clicked", self.run_callback, "create_group")
-        self.grid.attach(self.buttonGroup, 4, 4, 1, 1)
+        self.grid.attach(self.buttonGroup, 7, 4, 1, 1)
 
         self.buttonSort = Gtk.Button(label=self.strings["button.group_add"])
         self.buttonSort.connect("clicked", self.run_callback, "sortl_image")
-        self.grid.attach(self.buttonSort, 4, 5, 1, 1)
+        self.grid.attach(self.buttonSort, 7, 5, 1, 1)
         self.set_sortl_button(False)
 
         self.statusbar = Gtk.Label()
@@ -50,6 +50,14 @@ class GUI(Gtk.Window):
 
         self.progressbar = Gtk.ProgressBar()
         self.grid.attach(self.progressbar, 0, 3, 5, 1)
+
+        self.vsep1 = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
+        self.grid.attach(self.vsep1, 6, 0, 1, 50)
+
+        self.hideSortedButton = Gtk.CheckButton(label=self.strings["button.toggle.hide_sorted"])
+        self.hideSortedButton.set_active(True)
+        self.hideSortedButton.connect("toggled", self.update_filters)
+        self.grid.attach(self.hideSortedButton, 7, 0, 1, 1)
 
         # Keybinder.init()
         # Keybinder.bind("Left", self.run_callback, "prev_image")
@@ -61,8 +69,10 @@ class GUI(Gtk.Window):
         # Keybinder.bind("e", self.run_callback, "rotl_image")
 
         self.connect("key-press-event", self.key_press_event)
-
-        self.progressbar_running = False
+    def update_filters(self, *args):
+        self.run_callback(None, "update_filters", (
+            {"hide_sorted": self.hideSortedButton.get_active()}
+        ,))
     def key_press_event(self, widget, event):
         keyval = event.keyval
         keyval_name = Gdk.keyval_name(keyval)
@@ -83,9 +93,6 @@ class GUI(Gtk.Window):
         for kb in keybinds:
             if bool(kb[0]) == ctrl and keyval_name == kb[1]:
                 self.run_callback(None, kb[2])
-    def update(self):
-        if self.progressbar_running:
-            self.progressbar.pulse()
     def set_progress(self, progress):
         self.progressbar.set_fraction(progress)
     def set_sortl_button(self, state):
@@ -116,7 +123,7 @@ class GUI(Gtk.Window):
         self.tvcolumn.add_attribute(cell, 'text', 0)
         self.treebox.add(self.treeview)
 
-        self.grid.attach(self.treebox, 0, 4, 4, 20)
+        self.grid.attach(self.treebox, 0, 4, 5, 20)
     def update_grouptree(self, data):
         self.grouptree.clear()
 
@@ -130,6 +137,8 @@ class GUI(Gtk.Window):
         self.statusbar.set_text(text)
     def set_callback(self, action, func):
         self.callbacks[action] = func
+        if action == "update_filters":
+            self.update_filters()
     def run_callback(self, widget, action, params=[]):
         if action in self.callbacks:
             self.callbacks[action](*params)

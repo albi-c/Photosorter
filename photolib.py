@@ -58,7 +58,7 @@ class Image:
         self.newdir = os.path.join(self.dirname, self.settings["newdir"])
 
         Path(self.newdir).mkdir(parents=True, exist_ok=True)
-        self.imageArray = listFiles(self.newdir)
+        self.updateImageArray()
         self.imageIndex = 0
 
         self.updateImage()
@@ -73,9 +73,30 @@ class Image:
 
         self.lgroup_init = False
 
-        self.timeout_id = GLib.timeout_add(50, self.update, None)
-    def update(self, *args):
-        self.gui.update()
+        self.filters = {"hide_sorted": False}
+    def updateImageArray(self):
+        self.imageArray = listFiles(self.newdir)
+    def updateSortedArray(self):
+        pass
+    def updateFilters(self, filters):
+        for fil in filters:
+            self.filters[fil] = filters[fil]
+        
+        self.updateImageArray()
+        
+        for key, val in self.filters.items():
+            if key == "hide_sorted" and val:
+                years = listDirs(self.dirname, ["new"], isYear)
+                print(years)
+                files = []
+                for year in years:
+                    for path, dirs, files_ in os.walk(os.path.join(self.dirname, year)):
+                        files += [os.path.basename(f) for f in files_] # get only filename
+                print(files)
+                print(", ".join([str(x) for x in self.imageArray]))
+                self.imageArray = [x for x in self.imageArray if os.path.basename(str(x)) not in files]
+        
+        self.updateImage()
     def rotateLeft(self):
         self.rotateImage(90)
     def rotateRight(self):
@@ -189,7 +210,6 @@ class Image:
             img = exif.Image(f)
         if img.has_exif:
             if "orientation" in dir(img):
-                print(img.orientation)
                 orientation = img.orientation
                 if orientation == exif.Orientation.RIGHT_TOP:
                     return GdkPixbuf.PixbufRotation.CLOCKWISE

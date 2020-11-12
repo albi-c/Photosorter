@@ -18,4 +18,6 @@ gui.set_callback("rotr_image", image.rotateRight)
 
 gui.set_callback("create_group", image.createGroup)
 
+gui.set_callback("update_filters", image.updateFilters)
+
 gui.start()
