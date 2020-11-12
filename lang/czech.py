@@ -20,4 +20,6 @@ groups.create_new.year=Rok:
 groups.create_new.name=Název:
 
 dateformat=%d. %m. %Y %H:%M:%S
+
+dateformat.not_acurate=(Datum může být nepřesné)
 '''

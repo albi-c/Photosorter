@@ -20,4 +20,6 @@ groups.create_new.year=Year:
 groups.create_new.name=Name:
 
 dateformat=%Y/%m/%d %H:%M:%S
+
+dateformat.not_acurate=(Date may be inaccurate)
 '''
