@@ -1,4 +1,4 @@
-import os, exif, re, datetime, shutil, time, sys
+import os, exif, re, datetime, shutil, time, sys, enum
 from pathlib import Path
 from send2trash import send2trash
 from PIL import Image as PILImage
@@ -87,13 +87,10 @@ class Image:
         for key, val in self.filters.items():
             if key == "hide_sorted" and val:
                 years = listDirs(self.dirname, ["new"], isYear)
-                print(years)
                 files = []
                 for year in years:
                     for path, dirs, files_ in os.walk(os.path.join(self.dirname, year)):
-                        files += [os.path.basename(f) for f in files_] # get only filename
-                print(files)
-                print(", ".join([str(x) for x in self.imageArray]))
+                        files += [os.path.basename(f) for f in files_]
                 self.imageArray = [x for x in self.imageArray if os.path.basename(str(x)) not in files]
         
         self.updateImage()
@@ -123,6 +120,7 @@ class Image:
         except IndexError:
             pass
         
+        self.updateFilters()
         self.updateImage()
     def sortImage(self, group1, group2):
         if isYear(group2):
@@ -134,6 +132,8 @@ class Image:
             self.moveImage(self.imageArray[self.imageIndex], os.path.join(self.dirname, group1, group2))
         except IndexError:
             self.updateImage()
+        
+        self.updateFilters()
     def sortLastImage(self):
         if not self.lgroup_init:
             return
@@ -183,6 +183,8 @@ class Image:
         self.removeImageArrayItem(src)
 
         shutil.move(src, dst)
+
+        self.updateFilters()
     def updateImage(self):
         filename = None
         try:
@@ -210,7 +212,10 @@ class Image:
             img = exif.Image(f)
         if img.has_exif:
             if "orientation" in dir(img):
-                orientation = img.orientation
+                try:
+                    orientation = img.orientation
+                except ValueError:
+                    return GdkPixbuf.PixbufRotation.NONE
                 if orientation == exif.Orientation.RIGHT_TOP:
                     return GdkPixbuf.PixbufRotation.CLOCKWISE
                 elif orientation == exif.Orientation.LEFT_BOTTOM:
